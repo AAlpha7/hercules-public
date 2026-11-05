@@ -1,0 +1,7 @@
+# Registry of target repos Hercules manages (SPEC §3.3).
+repos:
+  example-app:
+    url: git@github.com:you/example-app.git
+    default_branch: main
+    workflow: WORKFLOW.md
+    max_concurrent: 1

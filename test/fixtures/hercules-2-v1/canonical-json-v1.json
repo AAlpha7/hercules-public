@@ -1,0 +1,8 @@
+{
+  "input": {
+    "z": [3, { "b": true, "a": "雪" }],
+    "a": { "s": "line\nbreak", "n": 0 }
+  },
+  "canonical": "{\"a\":{\"n\":0,\"s\":\"line\\nbreak\"},\"z\":[3,{\"a\":\"雪\",\"b\":true}]}",
+  "sha256": "sha256:c35a0cf12e79322677b628c0443612539bf1f1bb5d1c790a5b54a76730b6cd0a"
+}

@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+*.log
+.DS_Store
+
+# SDD / agent scratch (never commit)
+.superpowers/
+.claude/
+tmp/
+# L2 screenshots belong on the packet channel (/api/tasks/:id/screenshots), not git
+.scratch-evidence/
+node_modules

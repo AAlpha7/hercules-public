@@ -1,0 +1,40 @@
+{
+  "repo": "orbit",
+  "title": "orbit readiness",
+  "idPrefix": "orbit-ready",
+  "priority": 20,
+  "stages": [
+    {
+      "title": "R1: AGENTS.md map + thin CLAUDE.md",
+      "body": "## Goal\nInstall a short agent map for **orbit** so every coding agent shares one entry point.\n\n## Task\n- Add or tighten `AGENTS.md` as a **map** (layout, conventions, quality commands, runtime knobs).\n- Keep it ≤ ~120 lines — link to SPEC / README / WORKFLOW; do not paste encyclopedias.\n- Add a thin `CLAUDE.md` (≤ ~20 lines) that only points agents at `AGENTS.md`.\n- Do **not** implement full WORKFLOW gates or chase green CI in this stage.\n\n## Repo\norbit\n\n## Definition of Done\n- [ ] (mechanical) `AGENTS.md` exists on the task branch with substantial map content\n- [ ] (mechanical) `AGENTS.md` stays within ~120 lines (map, not encyclopedia)\n- [ ] (mechanical) `CLAUDE.md` is a thin pointer to `AGENTS.md` (≤ ~20 lines)\n- [ ] (reviewer) A new agent can find layout + how to run checks from the map alone\n\n## Notes\n- Next stage (R2) installs WORKFLOW; this stage is docs/map only.\n- Labels `onboarding`/`readiness` keep this dispatchable while the repo is incomplete.\n",
+      "labels": [
+        "onboarding",
+        "readiness"
+      ]
+    },
+    {
+      "title": "R2: WORKFLOW install/boot/gates",
+      "body": "## Goal\nInstall executable harness policy for **orbit** (WORKFLOW install/boot/gates).\n\n## Task\n- Add or fix `WORKFLOW.md` (copy from Hercules `WORKFLOW.template.md` and fill placeholders).\n- Declare `setup.install`, gate commands (`typecheck`/`lint`/`test`/`build` as applicable),\n  and `setup.boot` + `health_check` when the repo is an app.\n- **Gates need not be green yet** if the baseline is broken — this stage is about\n  declaring a trustworthy command surface, not fixing the entire suite.\n- Do not expand AGENTS.md into an encyclopedia; touch the map only if WORKFLOW paths change.\n\n## Repo\norbit\n\n## Definition of Done\n- [ ] (mechanical) `WORKFLOW.md` present with YAML front matter that parses\n- [ ] (mechanical) At least one gate command is defined under `gates:`\n- [ ] (mechanical) `setup.install` is declared (or documented N/A for pure-docs repos)\n- [ ] (reviewer) Gate/boot commands match the real stack (cargo/pnpm/etc.)\n- [ ] (reviewer) Body prompt points agents at AGENTS.md and does not invent tribal steps\n\n## Notes\n- Green gates + isolated boot proof are **R3**, not this stage.\n- Soft checklist score (`Check readiness` in Repos) may still fail until R3.\n",
+      "labels": [
+        "onboarding",
+        "readiness"
+      ]
+    },
+    {
+      "title": "R3: Prove L1 green + isolated boot",
+      "body": "## Goal\nProve Layer-1 gates and isolated boot for **orbit** (mechanical readiness).\n\n## Task\n- Make Layer-1 gates green on the default-branch-compatible worktree (`pnpm check:full`,\n  `cargo test`, or whatever WORKFLOW declares).\n- Ensure WORKFLOW boot + health_check work in isolation (`{port}`, `{scratch_dir}`,\n  ephemeral DB) when the repo is an app; document N/A for pure libraries/docs.\n- Fix only what blocks gates/boot — no drive-by refactors.\n\n## Repo\norbit\n\n## Definition of Done\n- [ ] (mechanical) All WORKFLOW Layer-1 gates pass @gate:test\n- [ ] (mechanical) Isolated boot + health_check succeed when declared in WORKFLOW\n- [ ] (reviewer) Failure output is agent-actionable; no silenced tests or empty catches\n\n## Notes\n- If a gate is intentionally deferred, document why in WORKFLOW/AGENTS and keep the\n  command honest — do not delete or skip tests to greenwash.\n- Human still marks the repo ready in R4; this stage does not flip `readiness`.\n",
+      "labels": [
+        "onboarding",
+        "readiness"
+      ]
+    },
+    {
+      "title": "R4: Human checklist + mark ready",
+      "body": "## Goal\nClose the human loop for **orbit**: verify checklist, document verification, mark ready.\n\n## Task\n- Confirm soft readiness checklist is green (Repos → Check readiness) on the trusted branch.\n- Ensure \"How to verify a change\" is obvious (AGENTS map + WORKFLOW gates/boot).\n- Suggest first post-onboard tasks (small bug, tight feature, test-guarded refactor).\n- **Do not** auto-flip `repos.yaml` readiness — only a human marks ready in Repos.\n\n## Repo\norbit\n\n## Definition of Done\n- [ ] (mechanical) Soft readiness checklist required items pass (Reprobe in Repos)\n- [ ] (reviewer) Entry docs tell a human how to verify a change without tribal knowledge\n- [ ] (human) Spot-check README / map / WORKFLOW; **Mark ready** in Repos when trustworthy\n\n## Notes\n- Leave the repo incomplete if anything still feels untrustworthy.\n- After ready: prefer small first autonomous tasks, not vague judgment-heavy work.\n",
+      "labels": [
+        "onboarding",
+        "readiness"
+      ]
+    }
+  ]
+}

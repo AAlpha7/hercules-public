@@ -1,0 +1,68 @@
+{
+  "name": "hercules",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Hercules — a minimal multi-repo coding-agent orchestrator (see SPEC.md)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AAlpha7/hercules-public.git"
+  },
+  "type": "module",
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=20.10"
+  },
+  "scripts": {
+    "start": "node dist/src/main.js",
+    "dev:web": "vite",
+    "typecheck": "tsc --noEmit && tsc -p src/web/tsconfig.json --noEmit && tsc -p tsconfig.test-web.json --noEmit && node scripts/check-test-source-static.mjs",
+    "typecheck:web": "tsc -p src/web/tsconfig.json --noEmit",
+    "typecheck:test-web": "tsc -p tsconfig.test-web.json --noEmit",
+    "typecheck:test-static": "node scripts/check-test-source-static.mjs",
+    "test": "vitest run",
+    "test:unit": "vitest run --config vitest.unit.config.ts && vitest run --config vitest.render.config.ts",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:m7-browser-proof": "pnpm build:web && vitest run --config vitest.spa-smoke.config.ts test/web/m7OutcomeReviewSmoke.test.ts",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "build:server": "tsc -p tsconfig.build.json",
+    "build:web": "vite build",
+    "build": "pnpm build:server && pnpm build:web",
+    "check": "pnpm typecheck && pnpm lint && pnpm test:unit",
+    "check:full": "pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm test:spa-smoke",
+    "test:spa-smoke": "pnpm build:web && vitest run --config vitest.spa-smoke.config.ts",
+    "feature-map": "node scripts/feature-map.mjs"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.0.5",
+    "better-sqlite3": "12.4.1",
+    "gray-matter": "^4.0.3",
+    "hono": "^4.12.25",
+    "simple-git": "^3.27.0",
+    "yaml": "^2.6.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^7.0.0",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/better-sqlite3": "9.6.0",
+    "@types/node": "^20.17.0",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@types/ws": "^8.18.1",
+    "@vitejs/plugin-react": "^6.0.2",
+    "eslint": "^9.17.0",
+    "jsdom": "^29.1.1",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0",
+    "vite": "^8.0.16",
+    "vitest": "^2.1.8",
+    "ws": "8"
+  }
+}

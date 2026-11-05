@@ -1,0 +1,14 @@
+# Hercules 2.0 cutover C3.2 — reviewed authority roster (control repository root).
+# Names the production verifier and evaluator identities; authorityContext is
+# populated from this file, never from task bytes. Changing an identity is a
+# reviewed change: receipts from a verifier not listed here classify self_report.
+schema: hercules-authority-roster/v1
+verifier:
+  runId: hercules-legacy-verifier-v1
+  implementation: hercules-orchestrator.verifier.v1
+evaluator:
+  runId: hercules-review-evaluation-v1
+  implementationId: hercules-control.reviewEvaluation.v1
+  version: c3.3
+  model: null
+  runtime: node-22
