@@ -115,12 +115,12 @@ describe('operatorFeedback', () => {
     expect(msg).toContain('p-1');
   });
 
-  it('draftReadyNotice clips long intents and points at 待决', () => {
+  it('draftReadyNotice clips long intents and points at Needs you', () => {
     const long =
       '把底栏 Logout 改成 Settings，并加入语言切换与默认 agent 选择，外加更多说明文字确保超长';
     const msg = draftReadyNotice({ repo: 'hercules', intent: long });
-    expect(msg).toMatch(/^分析完成：hercules · /);
-    expect(msg).toMatch(/点击待决打开草稿$/);
+    expect(msg).toMatch(/^Draft ready: hercules · /);
+    expect(msg).toMatch(/open draft from Needs you$/);
     expect(msg.length).toBeLessThan(long.length + 40);
     expect(msg).toContain('…');
   });

@@ -325,6 +325,8 @@ export interface PacketProvenance {
  */
 export interface PacketNonceOpts {
   readonly nonce?: string | null;
+  /** Chip label language; default zh. */
+  readonly lang?: 'en' | 'zh';
 }
 
 /** True when provenance failed closed on DTO nonce mismatch / explicit absence. */
@@ -1405,6 +1407,7 @@ export function buildCredibilityChips(
     if (first?.[1] !== undefined) decisionSummary = first[1];
   }
   const chips: CredibilityChip[] = [];
+  const en = opts?.lang === 'en';
 
   // 门禁 n/m
   let gatesLabel: string | null = null;
@@ -1412,12 +1415,12 @@ export function buildCredibilityChips(
     const counted = card.gates.filter((g) => g.outcome !== 'skipped' && g.outcome !== 'info');
     if (counted.length > 0) {
       const green = counted.filter((g) => g.passed).length;
-      gatesLabel = `门禁 ${green}/${counted.length}`;
+      gatesLabel = en ? `Gates ${green}/${counted.length}` : `门禁 ${green}/${counted.length}`;
     }
   }
   if (!gatesLabel) {
     const m = /门禁\s*(\d+)\s*\/\s*(\d+)/.exec(decisionSummary);
-    if (m) gatesLabel = `门禁 ${m[1]}/${m[2]}`;
+    if (m) gatesLabel = en ? `Gates ${m[1]}/${m[2]}` : `门禁 ${m[1]}/${m[2]}`;
   }
   if (gatesLabel) chips.push({ kind: 'gates', label: gatesLabel });
 
@@ -1426,18 +1429,19 @@ export function buildCredibilityChips(
   if (card?.reviewer.ran) {
     reviewerLabel =
       card.reviewer.approved === true
-        ? '审稿 通过'
+        ? en ? 'Review passed' : '审稿 通过'
         : card.reviewer.approved === false
-          ? '审稿 要求修改'
-          : '审稿 未运行';
+          ? en ? 'Review changes requested' : '审稿 要求修改'
+          : en ? 'Review not run' : '审稿 未运行';
   } else if (card && !card.reviewer.ran) {
-    reviewerLabel = '审稿 未运行';
+    reviewerLabel = en ? 'Review not run' : '审稿 未运行';
   } else {
-    if (/独立审稿:通过|审稿:通过/.test(decisionSummary)) reviewerLabel = '审稿 通过';
-    else if (/独立审稿:要求修改|审稿:要求修改/.test(decisionSummary)) {
-      reviewerLabel = '审稿 要求修改';
+    if (/独立审稿:通过|审稿:通过/.test(decisionSummary)) {
+      reviewerLabel = en ? 'Review passed' : '审稿 通过';
+    } else if (/独立审稿:要求修改|审稿:要求修改/.test(decisionSummary)) {
+      reviewerLabel = en ? 'Review changes requested' : '审稿 要求修改';
     } else if (/独立审稿:未运行|审稿:未运行/.test(decisionSummary)) {
-      reviewerLabel = '审稿 未运行';
+      reviewerLabel = en ? 'Review not run' : '审稿 未运行';
     }
   }
   if (reviewerLabel) chips.push({ kind: 'reviewer', label: reviewerLabel });
@@ -1445,17 +1449,30 @@ export function buildCredibilityChips(
   // 行为证据
   let evidenceLabel: string | null = null;
   if (card) {
-    if (!card.evidence.ran) evidenceLabel = '行为证据 未运行';
-    else if (card.evidence.ok === true) evidenceLabel = `行为证据 ${card.evidence.steps} 步 ✓`;
-    else if (card.evidence.ok === false) evidenceLabel = `行为证据 ${card.evidence.steps} 步 ✗`;
-    else evidenceLabel = `行为证据 ${card.evidence.steps} 步`;
+    if (!card.evidence.ran) evidenceLabel = en ? 'Behavioral not run' : '行为证据 未运行';
+    else if (card.evidence.ok === true) {
+      evidenceLabel = en
+        ? `Behavioral ${card.evidence.steps} steps ✓`
+        : `行为证据 ${card.evidence.steps} 步 ✓`;
+    } else if (card.evidence.ok === false) {
+      evidenceLabel = en
+        ? `Behavioral ${card.evidence.steps} steps ✗`
+        : `行为证据 ${card.evidence.steps} 步 ✗`;
+    } else {
+      evidenceLabel = en
+        ? `Behavioral ${card.evidence.steps} steps`
+        : `行为证据 ${card.evidence.steps} 步`;
+    }
   } else {
     const pass = /(?:浏览器)?行为证据\s*(\d+)\s*步通过/.exec(decisionSummary);
     const fail = /(?:浏览器)?行为证据未通过/.test(decisionSummary);
     const skip = /(?:浏览器)?行为证据未运行|浏览器证据不适用/.test(decisionSummary);
-    if (pass) evidenceLabel = `行为证据 ${pass[1]} 步 ✓`;
-    else if (fail) evidenceLabel = '行为证据 ✗';
-    else if (skip) evidenceLabel = '行为证据 未运行';
+    if (pass) {
+      evidenceLabel = en
+        ? `Behavioral ${pass[1]} steps ✓`
+        : `行为证据 ${pass[1]} 步 ✓`;
+    } else if (fail) evidenceLabel = en ? 'Behavioral ✗' : '行为证据 ✗';
+    else if (skip) evidenceLabel = en ? 'Behavioral not run' : '行为证据 未运行';
   }
   if (evidenceLabel) chips.push({ kind: 'behavioral', label: evidenceLabel });
 
@@ -1466,31 +1483,35 @@ export function buildCredibilityChips(
     /CLI证据\s*✓/.test(decisionSummary) ||
     /CLI证据\s*✔/.test(decisionSummary)
   ) {
-    cliLabel = 'CLI证据 ✓';
+    cliLabel = en ? 'CLI evidence ✓' : 'CLI证据 ✓';
   } else if (
     /CLI行为证据未通过/.test(decisionSummary) ||
     /CLI证据\s*✗/.test(decisionSummary) ||
     /CLI证据\s*✖/.test(decisionSummary)
   ) {
-    cliLabel = 'CLI证据 ✗';
+    cliLabel = en ? 'CLI evidence ✗' : 'CLI证据 ✗';
   } else if (/CLI行为证据未运行|CLI证据\s*未运行/.test(decisionSummary)) {
-    cliLabel = 'CLI证据 未运行';
+    cliLabel = en ? 'CLI evidence not run' : 'CLI证据 未运行';
   } else if (card) {
     // Card has no CLI field — default to 未运行 when we have a card at all.
-    cliLabel = 'CLI证据 未运行';
+    cliLabel = en ? 'CLI evidence not run' : 'CLI证据 未运行';
   }
   if (cliLabel) chips.push({ kind: 'cli', label: cliLabel });
 
   // 改动 N 文件
   let filesLabel: string | null = null;
   if (card && card.filesTouched >= 0) {
-    filesLabel = `改动 ${card.filesTouched} 文件`;
+    filesLabel = en
+      ? `${card.filesTouched} files changed`
+      : `改动 ${card.filesTouched} 文件`;
   } else {
     const m =
       /(\d+)\s*个文件改动/.exec(decisionSummary) ??
       /(\d+)\s*个文件改动/.exec(region) ??
       /Files touched[^0-9]*(\d+)/i.exec(region);
-    if (m) filesLabel = `改动 ${m[1]} 文件`;
+    if (m) {
+      filesLabel = en ? `${m[1]} files changed` : `改动 ${m[1]} 文件`;
+    }
   }
   if (filesLabel) chips.push({ kind: 'files', label: filesLabel });
 
@@ -1515,8 +1536,17 @@ export function evidenceEmptyNote(
     (/浏览器证据不适用/.exec(packet)?.[0] ?? null) ||
     (/行为证据未运行/.exec(packet)?.[0] ?? null) ||
     (/Behavioral evidence[^\n]*—\s*(.+)/i.exec(packet)?.[1]?.trim() ?? null);
-  if (reason) return `无截图证据 · ${reason}`;
-  return '无截图证据';
+  const en = opts?.lang === 'en';
+  const reasonEn: Record<string, string> = {
+    '浏览器证据不适用': 'browser evidence N/A',
+    '行为证据未运行': 'behavioral evidence not run',
+    '浏览器行为证据未运行': 'browser behavioral evidence not run',
+  };
+  if (reason) {
+    const shown = en ? (reasonEn[reason] ?? reason) : reason;
+    return en ? `No screenshot evidence · ${shown}` : `无截图证据 · ${reason}`;
+  }
+  return en ? 'No screenshot evidence' : '无截图证据';
 }
 
 /** Extract **Agent's report** prose from the latest packet (if present). */

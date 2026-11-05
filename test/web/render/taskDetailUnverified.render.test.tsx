@@ -135,7 +135,7 @@ describe('TaskDetail unverified criterion render', () => {
     const { container } = render(<TaskDetail {...taskDetailDefaults(task)} />);
 
     const verdict = container.querySelector('[data-evidence="review-verdict"]');
-    expect(verdict?.textContent).toMatch(/无法自动核验/);
+    expect(verdict?.textContent).toMatch(/could not be auto-verified/);
     expect(screen.queryByText(/机器验证未全绿/)).toBeNull();
 
     const needs = container.querySelector('[data-evidence="review-needs-you"]');
@@ -144,6 +144,6 @@ describe('TaskDetail unverified criterion render', () => {
     expect(unverified).toBeTruthy();
     expect(unverified!.textContent).toMatch(/❔/);
     expect(unverified!.className).toMatch(/unverified/);
-    expect(unverified!.textContent).toMatch(/确认后可直接批准/);
+    expect(unverified!.textContent).toMatch(/Confirm, then approve/);
   });
 });

@@ -171,17 +171,17 @@ describe('App draft job toast + inbox', () => {
 
     const notice = await waitFor(() => {
       const el = document.querySelector('[data-evidence="operator-notice"]');
-      expect(el?.textContent).toMatch(/分析完成/);
+      expect(el?.textContent).toMatch(/Draft ready/);
       return el!;
     });
-    expect(notice.textContent).toMatch(/分析完成/);
+    expect(notice.textContent).toMatch(/Draft ready/);
 
     const row = await waitFor(() => {
       const el = document.querySelector('.inbox-draft');
       expect(el).toBeTruthy();
       return el as HTMLButtonElement;
     });
-    expect(row.textContent).toMatch(/分析完成/);
+    expect(row.textContent).toMatch(/Draft ready/);
 
     await user.click(row);
 

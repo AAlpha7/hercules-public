@@ -40,7 +40,7 @@ describe('TaskDetail Approve render path', () => {
     ) as HTMLButtonElement;
     expect(approve).toBeTruthy();
     expect(approve).toBeDisabled();
-    expect(approve.textContent).toMatch(/先勾选人工项/);
+    expect(approve.textContent).toMatch(/Check human items first/);
   });
 
   it('checking human items then Approve sends humanAcknowledged texts', async () => {
@@ -59,7 +59,7 @@ describe('TaskDetail Approve render path', () => {
 
     await user.click(screen.getByRole('checkbox', { name: HUMAN }));
     expect(approve).toBeEnabled();
-    expect(approve.textContent).toMatch(/确认后批准|批准/);
+    expect(approve.textContent).toMatch(/Confirm then approve|Approve/);
 
     await user.click(approve);
     expect(onAction).toHaveBeenCalledTimes(1);

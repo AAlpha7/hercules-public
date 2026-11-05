@@ -1028,9 +1028,9 @@ describe('M7 outcome review real browser proof', () => {
           );
           expect(operatorSnap.needsCount).toBe(2);
           expect(operatorSnap.needsKinds).toEqual(['human', 'unverified']);
-          expect(operatorSnap.headline).toMatch(/机器检查全部通过/);
-          expect(operatorSnap.headline).toMatch(/看录像后批准/);
-          expect(operatorSnap.headline).toMatch(/无法自动核验/);
+          expect(operatorSnap.headline).toMatch(/All machine checks passed/);
+          expect(operatorSnap.headline).toMatch(/Watch the recording, then approve/);
+          expect(operatorSnap.headline).toMatch(/could not be auto-verified/);
           expect(operatorSnap.verdictBottom).toBeLessThanOrEqual(operatorSnap.navTop + 1);
           expect(operatorSnap.actionBottom).toBeLessThanOrEqual(operatorSnap.navTop + 1);
           expect(operatorSnap.flagsAboveAction).toBe(false);

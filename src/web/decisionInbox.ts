@@ -57,6 +57,8 @@ export interface InboxOptions {
     intent: string;
     status: DraftJobStatus;
   }[];
+  /** UI language; default zh keeps existing one-liners. */
+  readonly lang?: 'en' | 'zh';
 }
 
 /** system first; draft next (freshest thing the human asked for). */
@@ -91,7 +93,10 @@ export function buildDecisionInbox(
     // No taskId / repoKey — links nowhere; states the action (free disk).
     items.push({
       kind: 'system',
-      line: `🛑 调度暂停 — ${options.dispatchHold.detail}`,
+      line:
+        options.lang === 'en'
+          ? `🛑 Dispatch paused — ${options.dispatchHold.detail}`
+          : `🛑 调度暂停 — ${options.dispatchHold.detail}`,
     });
   }
 
@@ -102,12 +107,16 @@ export function buildDecisionInbox(
     });
   }
 
+  const en = options.lang === 'en';
+
   for (const job of options.draftJobs ?? []) {
     if (job.status !== 'ready') continue;
     items.push({
       kind: 'draft',
       draftJobId: job.id,
-      line: `分析完成 · ${job.repo} · ${clip(job.intent, 24)}`,
+      line: en
+        ? `Draft ready · ${job.repo} · ${clip(job.intent, 24)}`
+        : `分析完成 · ${job.repo} · ${clip(job.intent, 24)}`,
     });
   }
 
@@ -122,22 +131,32 @@ export function buildDecisionInbox(
         kind: 'approve',
         taskId: t.id,
         line: isGreenReview(t)
-          ? `✅ 待批「${t.title}」— 全绿,勾人工项即批`
+          ? en
+            ? `✅ Approve 「${t.title}」— all green; check human items then approve`
+            : `✅ 待批「${t.title}」— 全绿,勾人工项即批`
           : bodyHasTrunkInheritedGateFail(t.body)
-            ? `🟡 待批「${t.title}」— 门禁失败属主干既有问题,需先修 main`
-            : `🟡 待批「${t.title}」— 未全绿,需人工判断`,
+            ? en
+              ? `🟡 Approve 「${t.title}」— gate fail inherited from main; fix main first`
+              : `🟡 待批「${t.title}」— 门禁失败属主干既有问题,需先修 main`
+            : en
+              ? `🟡 Approve 「${t.title}」— not fully green; needs human judgment`
+              : `🟡 待批「${t.title}」— 未全绿,需人工判断`,
       });
     } else if (t.planPending && (t.state === 'todo' || t.state === 'retrying')) {
       items.push({
         kind: 'plan',
         taskId: t.id,
-        line: `📋 待批计划「${t.title}」— 补验收标准或放行`,
+        line: en
+          ? `📋 Plan 「${t.title}」— add acceptance criteria or allow`
+          : `📋 待批计划「${t.title}」— 补验收标准或放行`,
       });
     } else if (t.state === 'failed') {
       items.push({
         kind: 'failed',
         taskId: t.id,
-        line: `⛔「${t.title}」${t.attempts} 试未过 — 重试/打回/放弃`,
+        line: en
+          ? `⛔「${t.title}」failed after ${t.attempts} tries — retry / send back / drop`
+          : `⛔「${t.title}」${t.attempts} 试未过 — 重试/打回/放弃`,
       });
     } else if (
       (t.state === 'todo' || t.state === 'retrying') &&
@@ -146,7 +165,9 @@ export function buildDecisionInbox(
       items.push({
         kind: 'blocked',
         taskId: t.id,
-        line: `⏸「${t.title}」— 上游失败/缺失,处理后自动放行`,
+        line: en
+          ? `⏸「${t.title}」— upstream failed/missing; unblocks after you handle it`
+          : `⏸「${t.title}」— 上游失败/缺失,处理后自动放行`,
       });
     } else if (
       (t.state === 'todo' || t.state === 'retrying') &&
@@ -156,7 +177,9 @@ export function buildDecisionInbox(
       items.push({
         kind: 'blocked',
         taskId: t.id,
-        line: `⏸「${t.title}」— 上游已批未合并,先 Merge Selected`,
+        line: en
+          ? `⏸「${t.title}」— upstream approved but not merged; Merge Selected first`
+          : `⏸「${t.title}」— 上游已批未合并,先 Merge Selected`,
       });
     }
   }
@@ -166,7 +189,9 @@ export function buildDecisionInbox(
       items.push({
         kind: 'promote',
         repoKey: r.repoKey,
-        line: `🚀 可发布 ${r.repoKey} — ${r.changeCount} 项已验证,等你 Promote`,
+        line: en
+          ? `🚀 Ready to promote ${r.repoKey} — ${r.changeCount} verified, waiting on Promote`
+          : `🚀 可发布 ${r.repoKey} — ${r.changeCount} 项已验证,等你 Promote`,
       });
     }
   }

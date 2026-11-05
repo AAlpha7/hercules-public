@@ -55,8 +55,18 @@ export function buildDigest(
   };
 }
 
-/** Compact zh line for the inbox header. */
-export function formatDigestLine(g: Digest): string {
+/** Compact inbox digest line (zh default; pass lang for en). */
+export function formatDigestLine(g: Digest, lang: 'en' | 'zh' = 'zh'): string {
+  if (lang === 'en') {
+    const bits = [
+      `Last ${g.windowDays}d: shipped ${g.shipped}`,
+      `first-pass ${g.firstPass}/${g.shipped}`,
+      `promotes ${g.promotes}${g.rollbacks > 0 ? ` (rollback ${g.rollbacks})` : ''}`,
+    ];
+    if (g.failed > 0) bits.push(`parked ${g.failed}`);
+    if (g.costTodayUsd !== null) bits.push(`today $${g.costTodayUsd.toFixed(2)}`);
+    return bits.join(' · ');
+  }
   const bits = [
     `近 ${g.windowDays} 天:上线 ${g.shipped} 项`,
     `一次通过 ${g.firstPass}/${g.shipped}`,

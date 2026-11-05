@@ -59,6 +59,8 @@ export interface BuildReviewVerdictInput {
   readonly media: readonly EvidenceMedia[];
   /** Texts that are after-deploy only (never block Approve). */
   readonly afterDeployTexts?: readonly string[];
+  /** UI language; default zh keeps existing copy. */
+  readonly lang?: 'en' | 'zh';
 }
 
 const VIDEO_LANG_RE = /video|recording|录像|录屏|视频|screen\s*recording/i;
@@ -319,50 +321,72 @@ export function buildReviewVerdict(input: BuildReviewVerdictInput): ReviewVerdic
     kind: 'unverified' as const,
     text: u.text,
     why: u.warning,
-    recommendation: '确认后可直接批准',
+    recommendation: input.lang === 'en' ? 'Confirm, then approve' : '确认后可直接批准',
   }));
 
   const needsYou = [...humanNeeds, ...unverifiedNeeds];
   const hasVideoLink = humanNeeds.some((n) => n.evidence?.kind === 'video');
 
+  const en = input.lang === 'en';
+
   if (needsYou.length === 0) {
     return {
-      headline: '机器检查全部通过，可以批准。',
-      action: { kind: 'approve', label: '批准' },
+      headline: en
+        ? 'All machine checks passed — ready to approve.'
+        : '机器检查全部通过，可以批准。',
+      action: { kind: 'approve', label: en ? 'Approve' : '批准' },
       needsYou: [],
     };
   }
 
-  const parts: string[] = ['机器检查全部通过。'];
+  const parts: string[] = [
+    en ? 'All machine checks passed.' : '机器检查全部通过。',
+  ];
   if (humanNeeds.length > 0) {
     parts.push(
       hasVideoLink
-        ? '请看录像后批准。'
-        : `请确认 ${humanNeeds.length} 项后批准。`,
+        ? en
+          ? ' Watch the recording, then approve.'
+          : '请看录像后批准。'
+        : en
+          ? ` Confirm ${humanNeeds.length} item(s), then approve.`
+          : `请确认 ${humanNeeds.length} 项后批准。`,
     );
   }
   if (unverifiedNeeds.length > 0) {
-    parts.push(`其中 ${unverifiedNeeds.length} 项无法自动核验，请你确认。`);
+    parts.push(
+      en
+        ? ` ${unverifiedNeeds.length} item(s) could not be auto-verified — please confirm.`
+        : `其中 ${unverifiedNeeds.length} 项无法自动核验，请你确认。`,
+    );
   }
 
   return {
     headline: parts.join(''),
     action: {
       kind: hasVideoLink && humanNeeds.length > 0 ? 'watch_then_approve' : 'confirm_items',
-      label: hasVideoLink ? '看录像后批准' : '确认后批准',
+      label: hasVideoLink
+        ? en
+          ? 'Watch then approve'
+          : '看录像后批准'
+        : en
+          ? 'Confirm then approve'
+          : '确认后批准',
     },
     needsYou,
   };
 }
 
-/** ≤6 字 disabled reason when human checkboxes block the primary CTA. */
+/** Short disabled reason when human checkboxes block the primary CTA. */
 export function reviewPrimaryDisabledReason(opts: {
   readonly actionKind: ReviewPrimaryActionKind;
   readonly humanAllChecked: boolean;
   readonly approveBlocked: boolean;
   readonly verifyCrashed: boolean;
   readonly autoOk: boolean;
+  readonly lang?: 'en' | 'zh';
 }): string | null {
+  const en = opts.lang !== 'zh';
   if (!opts.approveBlocked) return null;
   if (
     (opts.actionKind === 'approve' ||
@@ -370,9 +394,9 @@ export function reviewPrimaryDisabledReason(opts: {
       opts.actionKind === 'confirm_items') &&
     !opts.humanAllChecked
   ) {
-    return '先勾选人工项';
+    return en ? 'Check human items first' : '先勾选人工项';
   }
-  if (opts.verifyCrashed) return '请先 Re-verify';
-  if (!opts.autoOk) return '机器未全绿';
-  return '暂不可批准';
+  if (opts.verifyCrashed) return en ? 'Re-verify first' : '请先 Re-verify';
+  if (!opts.autoOk) return en ? 'Machine checks not green' : '机器未全绿';
+  return en ? 'Cannot approve yet' : '暂不可批准';
 }

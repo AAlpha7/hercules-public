@@ -77,7 +77,7 @@ describe('TaskDetail after-deploy human ACs', () => {
     ) as HTMLButtonElement;
     expect(approve).toBeTruthy();
     expect(approve).toBeEnabled();
-    expect(approve.textContent).toMatch(/批准/);
+    expect(approve.textContent).toMatch(/Approve/);
 
     expect(screen.queryByText(/System proof green/i)).toBeNull();
     expect(screen.queryByText(/typed DoD recommended/i)).toBeNull();

@@ -129,8 +129,8 @@ describe('TaskDetail operator-first review', () => {
     const needs = container.querySelector('[data-evidence="review-needs-you"]');
     const machine = container.querySelector('[data-evidence="machine-details"]');
 
-    expect(verdict?.textContent).toMatch(/机器检查全部通过/);
-    expect(verdict?.textContent).toMatch(/看录像后批准|无法自动核验/);
+    expect(verdict?.textContent).toMatch(/All machine checks passed/);
+    expect(verdict?.textContent).toMatch(/Watch the recording|could not be auto-verified/);
     expect(primary).toBeTruthy();
     expect(primary!.getAttribute('data-action-kind')).toBe('watch_then_approve');
     expect(needs).toBeTruthy();
@@ -142,12 +142,12 @@ describe('TaskDetail operator-first review', () => {
 
     expect(machine).toBeTruthy();
     expect((machine as HTMLDetailsElement).open).toBe(false);
-    expect(machine!.textContent).toMatch(/机器检查明细/);
+    expect(machine!.textContent).toMatch(/Machine check details/);
 
     // Boundary / anti-cheat facts live in collapsed machine details as neutral pills.
     expect(machine!.querySelector('[data-evidence="review-only-flags"]')).toBeTruthy();
-    expect(machine!.textContent).toMatch(/改了测试文件/);
-    expect(machine!.textContent).toMatch(/分支含其他任务的提交|未碰受保护路径/);
+    expect(machine!.textContent).toMatch(/Tests edited/);
+    expect(machine!.textContent).toMatch(/Has other-task commits|No protected paths/);
 
     // Old lock copy gone.
     expect(screen.queryByText(/机器验证未全绿/)).toBeNull();
@@ -172,7 +172,7 @@ Done.
     const { container } = render(<TaskDetail {...taskDetailDefaults(task)} />);
     expect(
       container.querySelector('.review-verdict-headline')?.textContent,
-    ).toBe('机器检查全部通过，可以批准。');
+    ).toBe('All machine checks passed — ready to approve.');
     expect(
       container
         .querySelector('[data-evidence="review-primary-action"]')
@@ -218,7 +218,7 @@ Done.
     const { container } = render(<TaskDetail {...taskDetailDefaults(task)} />);
     expect(
       container.querySelector('[data-evidence="review-verdict"]')?.textContent,
-    ).toMatch(/请确认 1 项后批准/);
+    ).toMatch(/Confirm 1 item\(s\), then approve/);
     expect(
       container
         .querySelector('[data-evidence="review-primary-action"]')

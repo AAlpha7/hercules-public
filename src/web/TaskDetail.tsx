@@ -83,11 +83,17 @@ const EVIDENCE_FIRST_STATIC_ORDER: readonly SheetSectionId[] = [
 ];
 
 /** Neutral operator labels for boundary / anti-cheat facts (no warn colour). */
-const BOUNDARY_FACT_LABEL: Record<string, { ok: string; warn: string }> = {
+const BOUNDARY_FACT_LABEL_ZH: Record<string, { ok: string; warn: string }> = {
   branch: { ok: '仅任务分支', warn: '仅任务分支' },
   protected: { ok: '未碰受保护路径', warn: '改了受保护路径' },
   tests: { ok: '未改测试文件', warn: '改了测试文件' },
   cross: { ok: '无其他任务提交', warn: '分支含其他任务的提交' },
+};
+const BOUNDARY_FACT_LABEL_EN: Record<string, { ok: string; warn: string }> = {
+  branch: { ok: 'Task branch only', warn: 'Task branch only' },
+  protected: { ok: 'No protected paths', warn: 'Protected paths touched' },
+  tests: { ok: 'Tests not edited', warn: 'Tests edited' },
+  cross: { ok: 'No other-task commits', warn: 'Has other-task commits' },
 };
 
 /** Chinese one-liner for a per-task scheduling hold (todo/retrying banner). */
@@ -170,7 +176,7 @@ import {
   type ReviewPresentationConfig,
 } from './review/ReviewPresentationBoundary.js';
 
-/** zh labels for common repo areas (generic classifier falls back to raw dir). */
+/** Labels for common repo areas (generic classifier falls back to raw dir). */
 const AREA_ZH: Record<string, string> = {
   'src/web': '手机界面',
   'src/orchestrator': '编排调度',
@@ -187,6 +193,23 @@ const AREA_ZH: Record<string, string> = {
   core: '核心(Rust)',
   webapp: '前端应用',
   '(root)': '根目录文件',
+};
+const AREA_EN: Record<string, string> = {
+  'src/web': 'Phone UI',
+  'src/orchestrator': 'Orchestration',
+  'src/domain': 'Core logic',
+  'src/adapters': 'Agent adapters',
+  'src/server': 'Server',
+  'src/isolation': 'Isolation',
+  'src/verification': 'Verification',
+  'src/control': 'Control-repo IO',
+  'src/sessions': 'Sessions',
+  scripts: 'Scripts',
+  docs: 'Docs',
+  test: 'Tests',
+  core: 'Core (Rust)',
+  webapp: 'Web app',
+  '(root)': 'Repo root',
 };
 
 /** zh state words for inline sentences (banners) — labels elsewhere use STATE_LABEL. */
@@ -637,10 +660,10 @@ export function TaskDetail({
     ? extractEvidenceMedia(bodyText, task.id, packetOpts)
     : [];
   const evidenceChips = evidenceFirst
-    ? buildCredibilityChips(bodyText, decisionCard, packetOpts)
+    ? buildCredibilityChips(bodyText, decisionCard, { ...packetOpts, lang })
     : [];
   const evidenceNote = evidenceFirst
-    ? evidenceEmptyNote(bodyText, decisionCard, packetOpts)
+    ? evidenceEmptyNote(bodyText, decisionCard, { ...packetOpts, lang })
     : '';
   const agentReportText = evidenceFirst
     ? extractAgentReport(bodyText, packetOpts)
@@ -664,6 +687,7 @@ export function TaskDetail({
           humanACs,
           media: evidenceItems,
           afterDeployTexts: afterDeployACs,
+          lang,
         })
       : null;
   const primaryDisabledReason = reviewVerdict
@@ -673,6 +697,7 @@ export function TaskDetail({
         approveBlocked,
         verifyCrashed,
         autoOk,
+        lang,
       })
     : null;
 
@@ -1276,7 +1301,7 @@ export function TaskDetail({
 
             {reviewVerdict.needsYou.length > 0 && (
               <section className="review-needs-you" data-evidence="review-needs-you">
-                <div className="body-label">需要你确认</div>
+                <div className="body-label">{lang === 'en' ? 'Needs your confirmation' : '需要你确认'}</div>
                 <ul className="review-needs-you-list">
                   {reviewVerdict.needsYou.map((item) => {
                     const humanRow =
@@ -1458,7 +1483,7 @@ export function TaskDetail({
                 className="proof-details override-approve"
                 data-evidence="override-approve" open
               >
-                <summary className="body-label">覆盖批准(操作员决定)</summary>
+                <summary className="body-label">{lang === 'en' ? 'Override approve (operator decision)' : '覆盖批准(操作员决定)'}</summary>
                 <div className="muted">
                   机器检查未全绿时常规批准已锁定。写明理由后可覆盖批准（信任链会记录）。
                 </div>
@@ -1583,37 +1608,37 @@ export function TaskDetail({
                 {...habitDetailsProps('machine-details', false)}
                 {...orderStyle('machine-details')}
               >
-                <summary className="body-label">机器检查明细</summary>
+                <summary className="body-label">{lang === 'en' ? 'Machine check details' : '机器检查明细'}</summary>
                 {decisionCard ? (
                   <div className="decision-summary decision-card" data-evidence="decision-card">
                     {decisionCard.purpose && (
                       <div className="ds-row">
-                        <span className="ds-k">目的</span>
+                        <span className="ds-k">{lang === 'en' ? 'Purpose' : '目的'}</span>
                         {decisionCard.purpose}
                       </div>
                     )}
                     {decisionCard.reviewer.summaryZh && (
                       <div className="ds-row">
-                        <span className="ds-k">改动</span>
+                        <span className="ds-k">{lang === 'en' ? 'Change' : '改动'}</span>
                         {decisionCard.reviewer.summaryZh}
                       </div>
                     )}
                     <div className="ds-row">
-                      <span className="ds-k">层面</span>
+                      <span className="ds-k">{lang === 'en' ? 'Areas' : '层面'}</span>
                       <span className="ds-chips">
                         {decisionCard.areas.map((a) => (
                           <span key={a.area} className="pill ds-area">
-                            {AREA_ZH[a.area] ?? a.area} ×{a.count}
+                            {(lang === 'en' ? AREA_EN : AREA_ZH)[a.area] ?? a.area} ×{a.count}
                           </span>
                         ))}
-                        <span className="muted">共 {decisionCard.filesTouched} 文件</span>
+                        <span className="muted">{lang === 'en' ? `${decisionCard.filesTouched} files` : `共 ${decisionCard.filesTouched} 文件`}</span>
                       </span>
                     </div>
                     <div className="ds-row ds-boundaries">
-                      <span className="ds-k">边界</span>
+                      <span className="ds-k">{lang === 'en' ? 'Boundaries' : '边界'}</span>
                       <span className="ds-chips">
                         {boundaryBadges.map((b) => {
-                          const labels = BOUNDARY_FACT_LABEL[b.key];
+                          const labels = (lang === 'en' ? BOUNDARY_FACT_LABEL_EN : BOUNDARY_FACT_LABEL_ZH)[b.key];
                           const fact = labels
                             ? b.warn
                               ? labels.warn
@@ -1656,15 +1681,23 @@ export function TaskDetail({
                     )}
                     {(decisionCard.reviewOnlyFlags?.length ?? 0) > 0 && (
                       <div className="ds-row" data-evidence="review-only-flags">
-                        <span className="ds-k">反作弊</span>
+                        <span className="ds-k">
+                          {lang === 'en' ? 'Anti-cheat' : '反作弊'}
+                        </span>
                         <span className="ds-flags">
                           {decisionCard.reviewOnlyFlags.map((f) => {
                             const fact =
                               f.kind === 'test-edit'
-                                ? '改了测试文件'
+                                ? lang === 'en'
+                                  ? 'Tests edited'
+                                  : '改了测试文件'
                                 : f.kind === 'cross-task-commits'
-                                  ? '分支含其他任务的提交'
-                                  : f.meaningZh;
+                                  ? lang === 'en'
+                                    ? 'Has other-task commits'
+                                    : '分支含其他任务的提交'
+                                  : lang === 'en'
+                                    ? f.kind
+                                    : f.meaningZh;
                             return (
                               <span key={f.kind} className="pill ds-fact">
                                 {fact}
@@ -1675,7 +1708,7 @@ export function TaskDetail({
                       </div>
                     )}
                     <div className="ds-row">
-                      <span className="ds-k">验证</span>
+                      <span className="ds-k">{lang === 'en' ? 'Verification' : '验证'}</span>
                       <span className="ds-chips">
                         {(() => {
                           const counted = decisionCard.gates.filter((g) => !g.outcome);
@@ -1688,7 +1721,8 @@ export function TaskDetail({
                                 : 'pill ds-warn';
                           return (
                             <span className={pill}>
-                              门禁 {counted.filter((g) => g.passed).length}/{counted.length}
+                              {lang === 'en' ? 'Gates' : '门禁'}{' '}
+                              {counted.filter((g) => g.passed).length}/{counted.length}
                             </span>
                           );
                         })()}
@@ -1701,7 +1735,7 @@ export function TaskDetail({
                                 : 'pill ds-off'
                           }
                         >
-                          审稿{' '}
+                          {lang === 'en' ? 'Review' : '审稿'}{' '}
                           {decisionCard.reviewer.approved
                             ? '✓'
                             : decisionCard.reviewer.ran
@@ -1717,9 +1751,11 @@ export function TaskDetail({
                                 : 'pill ds-off'
                           }
                         >
-                          证据{' '}
+                          {lang === 'en' ? 'Evidence' : '证据'}{' '}
                           {decisionCard.evidence.ok
-                            ? `✓${decisionCard.evidence.steps}步`
+                            ? lang === 'en'
+                              ? `✓${decisionCard.evidence.steps} steps`
+                              : `✓${decisionCard.evidence.steps}步`
                             : decisionCard.evidence.ran
                               ? '✗'
                               : '—'}
@@ -1728,7 +1764,7 @@ export function TaskDetail({
                     </div>
                     {costChip ? (
                       <div className="ds-row">
-                        <span className="ds-k">成本</span>
+                        <span className="ds-k">{lang === 'en' ? 'Cost' : '成本'}</span>
                         <span className={`pill pill-cost pill-cost-${costChip.tone}`}>
                           {costChip.label}
                         </span>
@@ -1741,16 +1777,24 @@ export function TaskDetail({
                       </div>
                     ) : null}
                     <div className="ds-criteria">
-                      <span className="ds-k">验收条件</span>
+                      <span className="ds-k">{lang === 'en' ? 'Acceptance' : '验收条件'}</span>
                       {decisionCard.criteria.map((c, i) => {
                         const kindLabel =
                           c.kind === 'checkpoint'
-                            ? '检查点'
+                            ? lang === 'en'
+                              ? 'Checkpoint'
+                              : '检查点'
                             : c.kind === 'mechanical'
-                              ? '机检'
+                              ? lang === 'en'
+                                ? 'Mechanical'
+                                : '机检'
                               : c.kind === 'reviewer'
-                                ? '审稿'
-                                : '人工';
+                                ? lang === 'en'
+                                  ? 'Reviewer'
+                                  : '审稿'
+                                : lang === 'en'
+                                  ? 'Human'
+                                  : '人工';
                         return (
                           <div
                             key={i}
@@ -1770,15 +1814,24 @@ export function TaskDetail({
                             {c.status === 'unverified' ? (
                               <span className="muted ds-unverified-label">
                                 {' '}
-                                无法自动核验，请人工确认
+                                {lang === 'en'
+                                  ? 'Could not auto-verify — please confirm'
+                                  : '无法自动核验，请人工确认'}
                               </span>
                             ) : null}
                             <div className="muted ds-why">
                               {c.status === 'pass'
-                                ? `依据:${c.why}`
+                                ? lang === 'en'
+                                  ? `Evidence: ${c.why}`
+                                  : `依据:${c.why}`
                                 : c.status === 'unverified'
-                                  ? c.why || '无法自动核验，请人工确认'
-                                  : `未满足:${c.why}`}
+                                  ? c.why ||
+                                    (lang === 'en'
+                                      ? 'Could not auto-verify — please confirm'
+                                      : '无法自动核验，请人工确认')
+                                  : lang === 'en'
+                                    ? `Not met: ${c.why}`
+                                    : `未满足:${c.why}`}
                             </div>
                           </div>
                         );
@@ -1790,14 +1843,14 @@ export function TaskDetail({
                   <div className="decision-summary" data-evidence="decision-summary">
                     {taskPurpose && (
                       <div className="ds-row">
-                        <span className="ds-k">目的</span>
+                        <span className="ds-k">{lang === 'en' ? 'Purpose' : '目的'}</span>
                         {taskPurpose}
                       </div>
                     )}
                     {decisionSummary && (
                       <>
                         <div className="ds-row">
-                          <span className="ds-k">改动</span>
+                          <span className="ds-k">{lang === 'en' ? 'Change' : '改动'}</span>
                           {decisionSummary.change}
                         </div>
                         <div className="ds-row">
@@ -1849,7 +1902,7 @@ export function TaskDetail({
                 {...habitDetailsProps('packet-details', false)}
                 {...orderStyle('packet-details')}
               >
-                <summary className="body-label">完整审核包</summary>
+                <summary className="body-label">{lang === 'en' ? 'Full review packet' : '完整审核包'}</summary>
                 <Markdown text={packetDetailsText} />
               </details>
             ) : null}
@@ -1861,7 +1914,7 @@ export function TaskDetail({
                 {...habitDetailsProps('agent-report', false)}
                 {...orderStyle('agent-report')}
               >
-                <summary className="body-label">Agent 报告</summary>
+                <summary className="body-label">{lang === 'en' ? 'Agent report' : 'Agent 报告'}</summary>
                 <Markdown text={agentReportText} />
               </details>
             ) : null}
@@ -1872,11 +1925,11 @@ export function TaskDetail({
               {...habitDetailsProps('task-body', false)}
               {...orderStyle('task-body')}
             >
-              <summary className="body-label">任务说明</summary>
+              <summary className="body-label">{lang === 'en' ? 'Task brief' : '任务说明'}</summary>
               {briefText.trim().length > 0 ? (
                 <Markdown text={briefText} />
               ) : (
-                <span className="muted">无任务说明</span>
+                <span className="muted">{lang === 'en' ? 'No task brief' : '无任务说明'}</span>
               )}
             </details>
 

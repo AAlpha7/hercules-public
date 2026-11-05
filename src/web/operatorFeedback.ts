@@ -3,6 +3,7 @@
  * Pure strings — no React. Keeps "where did my task go?" from looking like data loss.
  */
 import type { RepoDto, Task } from './api.js';
+import { loadLang } from './prefs.js';
 
 /** States that occupy a per-repo dispatch slot (matches tick running set). */
 const SLOT_STATES = new Set(['in_progress', 'retrying']);
@@ -94,5 +95,8 @@ export function formatPipelineCreatedFeedback(
 
 /** Toast when a background analyst draft finishes while CreateForm is closed. */
 export function draftReadyNotice(job: { repo: string; intent: string }): string {
+  if (loadLang() === 'en') {
+    return `Draft ready: ${job.repo} · ${clipTitle(job.intent, 28)} — open draft from Needs you`;
+  }
   return `分析完成：${job.repo} · ${clipTitle(job.intent, 28)} — 点击待决打开草稿`;
 }

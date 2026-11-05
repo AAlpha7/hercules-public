@@ -664,11 +664,13 @@ export function App(): JSX.Element {
           dispatchHold: state.dispatchHold ?? null,
           adapterFailover: state.adapterFailover ?? null,
           draftJobs: Array.from(drafts.values()),
+          lang,
         },
       )
     : [];
   const digestLine = formatDigestLine(
     buildDigest(allTasksFromState(state), inboxReleases, state?.costSummary, Date.now(), 7),
+    lang,
   );
 
   if (!token) {
@@ -833,7 +835,9 @@ export function App(): JSX.Element {
           {state?.ready && inboxItems.length > 0 && (
             <div className="decision-inbox" data-evidence="decision-inbox">
               <div className="decision-inbox-head">
-                <strong>今日待决 · {inboxItems.length}</strong>
+                <strong>
+                  {t(lang, 'inboxPendingToday').replace('{n}', String(inboxItems.length))}
+                </strong>
                 <span className="muted decision-inbox-digest">{digestLine}</span>
               </div>
               {inboxItems.map((item, i) => (
@@ -880,7 +884,9 @@ export function App(): JSX.Element {
           )}
           {state?.ready && inboxItems.length === 0 && (
             <div className="decision-inbox decision-inbox-empty" data-evidence="decision-inbox">
-              <span className="muted">今日无需你决策 · {digestLine}</span>
+              <span className="muted">
+                {t(lang, 'inboxNothingToday').replace('{digest}', digestLine)}
+              </span>
             </div>
           )}
           {state?.ready && (

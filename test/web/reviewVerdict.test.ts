@@ -322,7 +322,7 @@ describe('reviewPrimaryDisabledReason', () => {
         verifyCrashed: false,
         autoOk: true,
       }),
-    ).toBe('先勾选人工项');
+    ).toBe('Check human items first');
   });
 
   it('null when not blocked', () => {

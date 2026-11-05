@@ -190,6 +190,9 @@ const en = {
   tokenUnlock: 'Unlock',
 
   humanAcAfterDeploy: 'After deploy',
+
+  inboxPendingToday: 'Needs you today · {n}',
+  inboxNothingToday: 'Nothing needs you today · {digest}',
 } as const;
 
 export type MessageKey = keyof typeof en;
@@ -380,6 +383,9 @@ const zh: Record<MessageKey, string> = {
   tokenUnlock: '解锁',
 
   humanAcAfterDeploy: '上线后可验',
+
+  inboxPendingToday: '今日待决 · {n}',
+  inboxNothingToday: '今日无需你决策 · {digest}',
 };
 
 const catalogs: Record<Lang, Record<MessageKey, string>> = { en, zh };

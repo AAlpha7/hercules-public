@@ -233,11 +233,11 @@ describe('TaskDetail evidence-first sheet', () => {
     const byKind = new Map(
       [...chips].map((el) => [el.getAttribute('data-kind'), el.textContent ?? '']),
     );
-    expect(byKind.get('gates')).toMatch(/门禁\s*6\/6/);
-    expect(byKind.get('reviewer')).toMatch(/审稿\s*通过/);
-    expect(byKind.get('behavioral')).toMatch(/行为证据/);
-    expect(byKind.get('cli')).toMatch(/CLI证据/);
-    expect(byKind.get('files')).toMatch(/改动\s*3\s*文件/);
+    expect(byKind.get('gates')).toMatch(/Gates\s*6\/6/);
+    expect(byKind.get('reviewer')).toMatch(/Review passed/);
+    expect(byKind.get('behavioral')).toMatch(/Behavioral/);
+    expect(byKind.get('cli')).toMatch(/CLI evidence/);
+    expect(byKind.get('files')).toMatch(/3 files changed/);
   });
 
   it('shows the strip on a failed task with screenshots', () => {
@@ -269,7 +269,7 @@ describe('TaskDetail evidence-first sheet', () => {
     render(<TaskDetail {...taskDetailDefaults(task)} />);
     const first = document.querySelector('[data-evidence="evidence-first"]');
     expect(first).toBeTruthy();
-    expect(first!.textContent).toMatch(/无截图证据/);
+    expect(first!.textContent).toMatch(/No screenshot evidence/);
     expect(document.querySelectorAll('[data-evidence="evidence-shot"]').length).toBe(0);
   });
 

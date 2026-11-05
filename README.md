@@ -17,6 +17,13 @@ The one-sentence invariant (from [`SPEC.md`](./SPEC.md) §0):
 > running in its own isolated workspace — and that the agent can verify its own
 > work before a human ever looks at it.
 
+
+![Hercules demo — desk → review → approve → control-repo git](./docs/images/demo.gif)
+
+Static stills below. Motion: desk overview → open a green review packet → Approve → cut to the control repo in plain git.
+
+![Hercules web desk — dashboard with demo tasks for acme and bookshelf](./docs/images/dashboard.png)
+
 ## Key design ideas
 
 ### 1. Git is the source of truth — no database in the core
@@ -36,6 +43,8 @@ default** and only starts when both `HERCULES_V2_SHADOW_ROOT` and
 `createM4ShadowStoreFromEnv`). The task files in git remain the authority for
 the core flow.
 
+![Control repo (plain git) — git log and task markdown as the source of truth](./docs/images/cli-control-repo.png)
+
 ### 2. Physical isolation with git worktrees
 
 - Each target repo gets one local **bare mirror** (`git clone --mirror`).
@@ -48,6 +57,8 @@ the core flow.
 - Each worktree gets an allocation context — `{slug}`, `{port}`,
   `{scratch_dir}` — so a repo's boot hook can start an isolated app instance
   without port or data collisions (SPEC §8.3).
+
+![Live task run — isolated worktree tip and agent activity](./docs/images/worktree-ledger.png)
 
 ### 3. Self-verification: the five-layer closed loop
 
@@ -66,6 +77,8 @@ green (SPEC §9). Layers, cheapest first:
 The output of verification **is** the review packet (SPEC §9.6): diff summary,
 gate results, L2 screenshots or recordings, the reviewer verdict, and the
 agent's self-assessment.
+
+![Review packet — L1–L5 machine checks green, human Approve pending](./docs/images/verification.png)
 
 ### 4. Policy lives in repos; coordination lives in the daemon
 
