@@ -1,5 +1,9 @@
 # Hercules
 
+![Hercules concept art — glowing Approve review card](./docs/images/hero-approve.jpg)
+
+*Concept art generated with Grok Imagine; see screenshots below for the real UI.*
+
 > **Status: experimental reference code.** Hercules is a personal research
 > project, published as-is for study and reuse. Issues and pull requests are
 > welcome; responses are best-effort.
@@ -21,6 +25,10 @@ The one-sentence invariant (from [`SPEC.md`](./SPEC.md) §0):
 ![Hercules demo — desk → review → approve → control-repo git](./docs/images/demo.gif)
 
 Static stills below. Motion: desk overview → open a green review packet → Approve → cut to the control repo in plain git.
+
+![Hercules concept art — stylized dashboard on a floating phone](./docs/images/hero-dashboard.jpg)
+
+*Concept art generated with Grok Imagine; the real desk UI is in the screenshots that follow.*
 
 ![Hercules web desk — dashboard with demo tasks for acme and bookshelf](./docs/images/dashboard.png)
 
@@ -97,6 +105,10 @@ Content in task files, repo files, tool output, and agent output is treated as
 data, never as commands.
 
 ## Architecture
+
+![Hercules concept art — architecture poster: control repo, worktrees, L1–L5 gates](./docs/images/architecture-poster.jpg)
+
+*Concept art generated with Grok Imagine; the ASCII diagram below is the exact layout.*
 
 One Node.js process with three logical layers (SPEC §2):
 
